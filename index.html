@@ -3,23 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QR Studio Ultra-Flat</title>
+    
+    <title>QR Studio Pro · WWZ.iM</title>
+    <meta name="author" content="WWZ">
+    <meta name="keywords" content="WWZ.iM, QR Code Generator, Developer Tools, Web Tools, HD QR Code, SVG QR Code">
+    <meta name="description" content="QR Studio by WWZ.iM: A professional HD & Vector QR code generator. Focused on clean design and efficient developer workflows.">
+
+    <link rel="icon" href="https://wangwenzhi.eu.org/images/favicon_io/favicon.ico">
+    <link rel="icon" type="image/png" sizes="16x16" href="https://wangwenzhi.eu.org/images/favicon_io/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="https://wangwenzhi.eu.org/images/favicon_io/favicon-32x32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="https://wangwenzhi.eu.org/images/favicon_io/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="https://wangwenzhi.eu.org/images/favicon_io/android-chrome-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="https://wangwenzhi.eu.org/images/favicon_io/android-chrome-512x512.png">
+    <link rel="manifest" href="https://wangwenzhi.eu.org/images/favicon_io/site.webmanifest">
+
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="QR Studio · WWZ.iM · Developer Tools">
+    <meta property="og:description" content="A modern HD & Vector QR code generator with a clean, minimal design. Part of the WWZ.iM developer utility suite.">
+    <meta property="og:site_name" content="WWZ.iM">
+    <meta property="og:url" content="https://wwz.im">
+    <meta property="og:image" content="https://wangwenzhi.eu.org/images/og-image.png">
+    <meta property="og:image:width" content="1280">
+    <meta property="og:image:height" content="640">
+
     <script type="text/javascript" src="https://unpkg.com/qr-code-styling@1.5.0/lib/qr-code-styling.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
 
         body {
-            font-family: 'Inter', system-ui, sans-serif;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
             background-color: #ffffff;
             background-image: radial-gradient(#eeeeee 0.5px, transparent 0.5px);
             background-size: 30px 30px;
             color: #000000;
         }
 
-        /* 移除阴影，改用实线边框 */
+        /* Flat & Glass Layout */
         .flat-container {
-            background: rgba(255, 255, 255, 0.8);
+            background: rgba(255, 255, 255, 0.85);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border: 2px solid #000000;
@@ -34,7 +57,6 @@
             border: 2px solid #000000;
         }
 
-        /* 状态过渡 */
         .qr-inactive {
             filter: grayscale(1);
             opacity: 0.05;
@@ -42,14 +64,13 @@
         }
 
         #qrcode canvas, #qrcode svg {
-            border-radius: 0px; /* 扁平化通常使用直角或极小圆角 */
+            border-radius: 0px;
             max-width: 100% !important;
             height: auto !important;
         }
 
-        /* 极简按钮 */
         .btn-flat {
-            transition: all 0.2s ease;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             border: 2px solid #000000;
         }
         .btn-flat:hover:not(:disabled) {
@@ -61,66 +82,79 @@
         }
 
         textarea { resize: none; overflow: hidden; }
+        
+        /* Custom Select Styling */
+        select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='currentColor'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            background-size: 1rem;
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col items-center justify-center p-4 lg:p-12">
 
-    <header class="text-center mb-12">
-        <h1 class="text-4xl font-[900] tracking-tighter mb-1">QR.STUDIO</h1>
-        <div class="h-1 w-12 bg-black mx-auto"></div>
+    <header class="text-center mb-12 animate-in fade-in duration-700">
+        <h1 class="text-4xl font-[900] tracking-tighter mb-2 uppercase">QR STUDIO</h1>
+        <div class="flex items-center justify-center gap-3">
+            <div class="h-[2px] w-10 bg-black"></div>
+            <span class="text-[10px] font-black uppercase tracking-[0.3em] text-gray-400">Powered by WWZ.iM</span>
+            <div class="h-[2px] w-10 bg-black"></div>
+        </div>
     </header>
 
-    <main class="flat-container rounded-none flex flex-col lg:flex-row w-full max-w-6xl min-h-[580px] overflow-hidden">
+    <main class="flat-container rounded-none flex flex-col lg:flex-row w-full max-w-6xl min-h-[600px] overflow-hidden">
         
-        <section class="flex-1 p-10 lg:p-14 flex flex-col border-b lg:border-b-0 lg:border-r-2 border-black">
+        <section class="flex-1 p-8 lg:p-14 flex flex-col border-b lg:border-b-0 lg:border-r-2 border-black">
             <div class="flex justify-between items-center mb-8">
-                <h2 class="text-xs font-black uppercase tracking-[0.3em]">01. Content</h2>
-                <button onclick="pasteText()" class="text-[10px] font-bold px-3 py-1 border border-black hover:bg-black hover:text-white transition uppercase">Paste</button>
+                <h2 class="text-xs font-black uppercase tracking-[0.4em] text-gray-500 underline decoration-2 underline-offset-8">01. Input</h2>
+                <button onclick="pasteText()" class="text-[10px] font-bold px-4 py-1.5 border-2 border-black hover:bg-black hover:text-white transition-all uppercase tracking-widest">Paste</button>
             </div>
 
             <div class="input-box p-1 mb-10">
-                <textarea id="textInput" placeholder="Enter content..." class="w-full min-h-[160px] p-4 text-xl bg-transparent border-0 outline-none placeholder:text-gray-200"></textarea>
+                <textarea id="textInput" placeholder="在此输入链接或文本内容..." class="w-full min-h-[180px] p-4 text-xl bg-transparent border-0 outline-none placeholder:text-gray-200"></textarea>
             </div>
 
             <div class="grid grid-cols-2 gap-8 mb-10">
                 <div class="space-y-3">
                     <label class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">02. Add Logo</label>
-                    <input type="file" id="logoInput" accept="image/*" class="block w-full text-xs text-gray-400 file:mr-4 file:py-2 file:px-4 file:border file:border-black file:bg-transparent file:text-[10px] file:font-bold file:uppercase cursor-pointer">
+                    <input type="file" id="logoInput" accept="image/*" class="block w-full text-[10px] text-gray-400 file:mr-4 file:py-2 file:px-4 file:border-2 file:border-black file:bg-transparent file:text-[10px] file:font-black file:uppercase cursor-pointer hover:file:bg-gray-50 transition">
                 </div>
                 <div class="space-y-3">
                     <label class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">03. Dot Style</label>
-                    <select id="dotsStyle" class="w-full h-10 border border-black px-2 text-xs font-bold outline-none cursor-pointer">
-                        <option value="square">Square (Default)</option>
-                        <option value="dots">Dots</option>
+                    <select id="dotsStyle" class="w-full h-11 border-2 border-black px-4 text-xs font-black outline-none cursor-pointer hover:bg-gray-50 transition uppercase tracking-widest">
+                        <option value="square">Square (Classic)</option>
+                        <option value="dots">Dots (Modern)</option>
                         <option value="rounded">Rounded</option>
-                        <option value="extra-rounded">Fluid</option>
+                        <option value="extra-rounded">Fluid Style</option>
                     </select>
                 </div>
             </div>
 
-            <div class="mt-auto">
-                <label class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 block mb-4">Recent History</label>
+            <div class="mt-auto pt-6 border-t border-gray-100">
+                <label class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 block mb-4 italic">Recent History</label>
                 <div id="historyContainer" class="flex flex-wrap gap-2"></div>
             </div>
         </section>
 
-        <section class="w-full lg:w-[400px] bg-white p-12 flex flex-col items-center justify-center">
-            <div id="canvasWrapper" class="qr-inactive mb-12 border border-gray-100 p-2 transition-all duration-500">
+        <section class="w-full lg:w-[420px] bg-white p-12 lg:p-16 flex flex-col items-center justify-center">
+            <div id="canvasWrapper" class="qr-inactive mb-12 border-2 border-black p-4 transition-all duration-700">
                 <div id="qrcode"></div>
             </div>
             
             <div class="w-full space-y-3">
-                <button onclick="download('png')" id="dlPng" class="btn-flat w-full bg-transparent py-4 font-bold text-[11px] tracking-[0.3em] uppercase disabled:border-gray-200 disabled:text-gray-200">Download PNG</button>
+                <button onclick="download('png')" id="dlPng" class="btn-flat w-full bg-transparent py-5 font-black text-[11px] tracking-[0.4em] uppercase disabled:border-gray-200 disabled:text-gray-200">Download PNG</button>
                 <div class="grid grid-cols-2 gap-3">
-                    <button onclick="download('svg')" id="dlSvg" class="btn-flat py-3 font-bold text-[10px] tracking-widest uppercase disabled:border-gray-200 disabled:text-gray-200">SVG</button>
-                    <button onclick="copyImage()" id="copyBtn" class="btn-flat py-3 font-bold text-[10px] tracking-widest uppercase disabled:border-gray-200 disabled:text-gray-200">Copy</button>
+                    <button onclick="download('svg')" id="dlSvg" class="btn-flat py-4 font-black text-[10px] tracking-[0.2em] uppercase disabled:border-gray-200 disabled:text-gray-200">Export SVG</button>
+                    <button onclick="copyImage()" id="copyBtn" class="btn-flat py-4 font-black text-[10px] tracking-[0.2em] uppercase disabled:border-gray-200 disabled:text-gray-200">Copy Image</button>
                 </div>
             </div>
         </section>
     </main>
 
-    <footer class="mt-12">
-        <p class="text-[10px] font-bold tracking-[0.5em] text-gray-300 uppercase underline decoration-1">No Shadow / High Precision</p>
+    <footer class="mt-12 text-center opacity-30 hover:opacity-100 transition-opacity duration-500">
+        <p class="text-[9px] font-bold tracking-[0.6em] text-black uppercase italic">Handcrafted for WWZ.iM Professional Suite</p>
     </footer>
 
     <script>
@@ -136,13 +170,13 @@
             }
 
             qrCode = new QRCodeStyling({
-                width: 1000,
-                height: 1000,
-                data: "Placeholder",
+                width: 1200,
+                height: 1200,
+                data: "https://wwz.im",
                 image: "",
                 dotsOptions: { color: "#000000", type: "square" },
                 backgroundOptions: { color: "#ffffff" },
-                imageOptions: { crossOrigin: "anonymous", margin: 5 }
+                imageOptions: { crossOrigin: "anonymous", margin: 6 }
             });
 
             qrCode.append(document.getElementById("qrcode"));
@@ -172,7 +206,7 @@
         function update(data, type, logo) {
             const active = data.length > 0;
             qrCode.update({
-                data: data || "Placeholder",
+                data: data || "https://wwz.im",
                 image: logo,
                 dotsOptions: { type: type },
                 cornersSquareOptions: { type: type === 'dots' || type === 'extra-rounded' ? 'extra-rounded' : 'square' }
@@ -185,7 +219,7 @@
             
             if(active) {
                 clearTimeout(window.saveTimer);
-                window.saveTimer = setTimeout(() => saveToHistory(data), 1000);
+                window.saveTimer = setTimeout(() => saveToHistory(data), 1200);
             }
         }
 
@@ -204,20 +238,20 @@
         }
 
         function download(ext) {
-            qrCode.download({ name: "QR_FLAT_" + Date.now(), extension: ext });
+            qrCode.download({ name: "WWZ_QR_" + Date.now(), extension: ext });
         }
 
         function saveToHistory(text) {
-            let h = JSON.parse(localStorage.getItem('qr_flat_h') || '[]');
+            let h = JSON.parse(localStorage.getItem('qr_wwz_flat_h') || '[]');
             h = [text, ...h.filter(i => i !== text)].slice(0, 5);
-            localStorage.setItem('qr_flat_h', JSON.stringify(h));
+            localStorage.setItem('qr_wwz_flat_h', JSON.stringify(h));
             renderHistory();
         }
 
         function renderHistory() {
-            const h = JSON.parse(localStorage.getItem('qr_flat_h') || '[]');
+            const h = JSON.parse(localStorage.getItem('qr_wwz_flat_h') || '[]');
             document.getElementById('historyContainer').innerHTML = h.map(t => `
-                <button onclick="useH('${t}')" class="px-3 py-1 border border-gray-200 text-[10px] font-bold text-gray-400 hover:border-black hover:text-black transition-all truncate max-w-[120px] uppercase italic">${t}</button>
+                <button onclick="useH('${t}')" class="px-3 py-1.5 border border-gray-200 text-[9px] font-black text-gray-400 hover:border-black hover:text-black transition-all truncate max-w-[110px] uppercase italic">${t}</button>
             `).join('');
         }
 
