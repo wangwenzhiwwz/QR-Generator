@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Studio Ultra-Flat</title>
+    <script type="text/javascript" src="https://unpkg.com/qr-code-styling@1.5.0/lib/qr-code-styling.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background-color: #ffffff;
+            background-image: radial-gradient(#eeeeee 0.5px, transparent 0.5px);
+            background-size: 30px 30px;
+            color: #000000;
+        }
+
+        /* 移除阴影，改用实线边框 */
+        .flat-container {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 2px solid #000000;
+        }
+
+        .input-box {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            transition: all 0.2s ease;
+        }
+        .input-box:focus-within {
+            border: 2px solid #000000;
+        }
+
+        /* 状态过渡 */
+        .qr-inactive {
+            filter: grayscale(1);
+            opacity: 0.05;
+            transform: scale(0.95);
+        }
+
+        #qrcode canvas, #qrcode svg {
+            border-radius: 0px; /* 扁平化通常使用直角或极小圆角 */
+            max-width: 100% !important;
+            height: auto !important;
+        }
+
+        /* 极简按钮 */
+        .btn-flat {
+            transition: all 0.2s ease;
+            border: 2px solid #000000;
+        }
+        .btn-flat:hover:not(:disabled) {
+            background: #000000;
+            color: #ffffff;
+        }
+        .btn-flat:active:not(:disabled) {
+            transform: translate(1px, 1px);
+        }
+
+        textarea { resize: none; overflow: hidden; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center p-4 lg:p-12">
+
+    <header class="text-center mb-12">
+        <h1 class="text-4xl font-[900] tracking-tighter mb-1">QR.STUDIO</h1>
+        <div class="h-1 w-12 bg-black mx-auto"></div>
+    </header>
+
+    <main class="flat-container rounded-none flex flex-col lg:flex-row w-full max-w-6xl min-h-[580px] overflow-hidden">
+        
+        <section class="flex-1 p-10 lg:p-14 flex flex-col border-b lg:border-b-0 lg:border-r-2 border-black">
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-xs font-black uppercase tracking-[0.3em]">01. Content</h2>
+                <button onclick="pasteText()" class="text-[10px] font-bold px-3 py-1 border border-black hover:bg-black hover:text-white transition uppercase">Paste</button>
+            </div>
+
+            <div class="input-box p-1 mb-10">
+                <textarea id="textInput" placeholder="Enter content..." class="w-full min-h-[160px] p-4 text-xl bg-transparent border-0 outline-none placeholder:text-gray-200"></textarea>
+            </div>
+
+            <div class="grid grid-cols-2 gap-8 mb-10">
+                <div class="space-y-3">
+                    <label class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">02. Add Logo</label>
+                    <input type="file" id="logoInput" accept="image/*" class="block w-full text-xs text-gray-400 file:mr-4 file:py-2 file:px-4 file:border file:border-black file:bg-transparent file:text-[10px] file:font-bold file:uppercase cursor-pointer">
+                </div>
+                <div class="space-y-3">
+                    <label class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">03. Dot Style</label>
+                    <select id="dotsStyle" class="w-full h-10 border border-black px-2 text-xs font-bold outline-none cursor-pointer">
+                        <option value="square">Square (Default)</option>
+                        <option value="dots">Dots</option>
+                        <option value="rounded">Rounded</option>
+                        <option value="extra-rounded">Fluid</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="mt-auto">
+                <label class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 block mb-4">Recent History</label>
+                <div id="historyContainer" class="flex flex-wrap gap-2"></div>
+            </div>
+        </section>
+
+        <section class="w-full lg:w-[400px] bg-white p-12 flex flex-col items-center justify-center">
+            <div id="canvasWrapper" class="qr-inactive mb-12 border border-gray-100 p-2 transition-all duration-500">
+                <div id="qrcode"></div>
+            </div>
+            
+            <div class="w-full space-y-3">
+                <button onclick="download('png')" id="dlPng" class="btn-flat w-full bg-transparent py-4 font-bold text-[11px] tracking-[0.3em] uppercase disabled:border-gray-200 disabled:text-gray-200">Download PNG</button>
+                <div class="grid grid-cols-2 gap-3">
+                    <button onclick="download('svg')" id="dlSvg" class="btn-flat py-3 font-bold text-[10px] tracking-widest uppercase disabled:border-gray-200 disabled:text-gray-200">SVG</button>
+                    <button onclick="copyImage()" id="copyBtn" class="btn-flat py-3 font-bold text-[10px] tracking-widest uppercase disabled:border-gray-200 disabled:text-gray-200">Copy</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="mt-12">
+        <p class="text-[10px] font-bold tracking-[0.5em] text-gray-300 uppercase underline decoration-1">No Shadow / High Precision</p>
+    </footer>
+
+    <script>
+        let qrCode;
+        const textInput = document.getElementById('textInput');
+        const dotsStyle = document.getElementById('dotsStyle');
+        const logoInput = document.getElementById('logoInput');
+
+        function init() {
+            if (typeof QRCodeStyling === 'undefined') {
+                setTimeout(init, 100);
+                return;
+            }
+
+            qrCode = new QRCodeStyling({
+                width: 1000,
+                height: 1000,
+                data: "Placeholder",
+                image: "",
+                dotsOptions: { color: "#000000", type: "square" },
+                backgroundOptions: { color: "#ffffff" },
+                imageOptions: { crossOrigin: "anonymous", margin: 5 }
+            });
+
+            qrCode.append(document.getElementById("qrcode"));
+            
+            textInput.addEventListener('input', triggerUpdate);
+            dotsStyle.addEventListener('change', triggerUpdate);
+            logoInput.addEventListener('change', triggerUpdate);
+            
+            renderHistory();
+            triggerUpdate();
+        }
+
+        function triggerUpdate() {
+            const val = textInput.value.trim();
+            const type = dotsStyle.value;
+            const file = logoInput.files[0];
+
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => update(val, type, e.target.result);
+                reader.readAsDataURL(file);
+            } else {
+                update(val, type, "");
+            }
+        }
+
+        function update(data, type, logo) {
+            const active = data.length > 0;
+            qrCode.update({
+                data: data || "Placeholder",
+                image: logo,
+                dotsOptions: { type: type },
+                cornersSquareOptions: { type: type === 'dots' || type === 'extra-rounded' ? 'extra-rounded' : 'square' }
+            });
+
+            document.getElementById('canvasWrapper').classList.toggle('qr-inactive', !active);
+            document.querySelectorAll('button').forEach(b => {
+                if(!b.onclick.toString().includes('pasteText')) b.disabled = !active;
+            });
+            
+            if(active) {
+                clearTimeout(window.saveTimer);
+                window.saveTimer = setTimeout(() => saveToHistory(data), 1000);
+            }
+        }
+
+        async function copyImage() {
+            const canvas = document.querySelector('#qrcode canvas');
+            if (!canvas) return;
+            canvas.toBlob(blob => {
+                const data = [new ClipboardItem({ [blob.type]: blob })];
+                navigator.clipboard.write(data).then(() => {
+                    const btn = document.getElementById('copyBtn');
+                    const old = btn.innerText;
+                    btn.innerText = "SUCCESS";
+                    setTimeout(() => btn.innerText = old, 1500);
+                });
+            });
+        }
+
+        function download(ext) {
+            qrCode.download({ name: "QR_FLAT_" + Date.now(), extension: ext });
+        }
+
+        function saveToHistory(text) {
+            let h = JSON.parse(localStorage.getItem('qr_flat_h') || '[]');
+            h = [text, ...h.filter(i => i !== text)].slice(0, 5);
+            localStorage.setItem('qr_flat_h', JSON.stringify(h));
+            renderHistory();
+        }
+
+        function renderHistory() {
+            const h = JSON.parse(localStorage.getItem('qr_flat_h') || '[]');
+            document.getElementById('historyContainer').innerHTML = h.map(t => `
+                <button onclick="useH('${t}')" class="px-3 py-1 border border-gray-200 text-[10px] font-bold text-gray-400 hover:border-black hover:text-black transition-all truncate max-w-[120px] uppercase italic">${t}</button>
+            `).join('');
+        }
+
+        function useH(t) { textInput.value = t; triggerUpdate(); }
+        async function pasteText() { 
+            try { textInput.value = await navigator.clipboard.readText(); triggerUpdate(); } catch(e) {}
+        }
+
+        init();
+    </script>
+</body>
+</html>
